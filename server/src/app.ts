@@ -3,6 +3,8 @@ import express from "express";
 import AppError from "./utils/AppError.js";
 import errorHandler from "./middleware/errorHandler.js";
 import catchAsync from "./utils/catchAsync.js";
+import validate from "./middleware/validate.js";
+import testValidation from "./validations/testValidation.js";
 
 const app = express();
 
@@ -36,5 +38,16 @@ app.post("/api/test", (req, res) => {
     receivedData: req.body
   });
 });
+app.post(
+  "/api/test-validation",
+  validate(testValidation),
+  (req, res) => {
+    res.status(200).json({
+      success: true,
+      message: "Data validated successfully",
+      data: req.body
+    });
+  }
+);
 app.use(errorHandler);
 export default app;
