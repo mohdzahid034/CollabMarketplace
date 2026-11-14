@@ -31,8 +31,8 @@ const errorHandler = (
 
   res.status(statusCode).json({
     success: false,
-    status: isOperational ? err.status : "error",
-    message
+    message,
+    data: null
   });
 };
 
