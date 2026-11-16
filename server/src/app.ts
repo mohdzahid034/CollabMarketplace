@@ -6,11 +6,42 @@ import catchAsync from "./utils/catchAsync.js";
 import validate from "./middleware/validate.js";
 import testValidation from "./validations/testValidation.js";
 import ApiResponse from "./utils/ApiResponse.js";
+import { pinoHttp } from "pino-http";
+import { randomUUID } from "node:crypto";
+import logger from "./config/logger.js";
+
 const app = express();
-app.get("/debug", (req, res) => {
-  res.send("DEBUG ROUTE WORKING");
+
+// Request logging and tracking
+app.use(
+  pinoHttp({
+    logger,
+    genReqId: () => String(randomUUID()),
+    customProps: (req) => ({
+      requestId: req.id
+    }),
+
+    customAttributeKeys: {
+      reqId: "requestId"
+    },
+
+    customSuccessMessage: () => "Request completed",
+
+    customErrorMessage: () => "Request failed",
+
+    customLogLevel: (req, res, err) => {
+      if (res.statusCode >= 500 || err) return "error";
+      if (res.statusCode >= 400) return "warn";
+      return "info";
+    }
+  })
+);
+app.use((req, res, next) => {
+  res.setHeader("X-Request-Id", String(req.id));
+  next();
 });
-// Global middleware
+
+// Request body parsing
 app.use(express.json());
 
 app.get(
@@ -53,13 +84,6 @@ app.post(
       )
     );
   }
-);
-console.log("Registered routes:", app.router.stack
-  .filter((layer: any) => layer.route)
-  .map((layer: any) => ({
-    path: layer.route.path,
-    methods: layer.route.methods
-  }))
 );
 app.use(errorHandler);
 export default app;

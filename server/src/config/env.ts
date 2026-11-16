@@ -28,7 +28,7 @@ if (error) {
 const env = {
   NODE_ENV: value.NODE_ENV as string,
   PORT: value.PORT as number,
-  MONGODB_URI: value.MONGODB_URI as string
+  MONGODB_URI: value.MONGODB_URI as string,
 };
 
 export default env;

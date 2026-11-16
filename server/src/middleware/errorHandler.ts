@@ -3,7 +3,7 @@ import type {
   Response,
   NextFunction
 } from "express";
-
+import logger from "../config/logger.js";
 import AppError from "../utils/AppError.js";
 
 const errorHandler = (
@@ -27,7 +27,13 @@ const errorHandler = (
     ? err.message
     : "Internal Server Error";
 
-  console.error(err);
+  logger.error(
+    {
+      err,
+      requestId: res.getHeader("X-Request-Id")
+    },
+    "Request failed"
+  );
 
   res.status(statusCode).json({
     success: false,
